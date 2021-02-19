@@ -52,7 +52,7 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 	 */
 	@Override
 	public void cleanGraph() {
-		Graph<Mafioso, MafiaEdge<Mafioso>> graph = new SimpleGraph<>(MafiaEdge.class);
+		graph = new SimpleGraph<>(MafiaEdge.class);
 	}
 
 	/**
