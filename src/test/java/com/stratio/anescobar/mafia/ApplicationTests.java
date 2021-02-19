@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.stratio.anescobar.mafia.components.MafiaHierarchyJgraphtService;
+import com.stratio.anescobar.mafia.components.impl.jgrapht.MafiaHierarchyJgraphtService;
 import com.stratio.anescobar.mafia.domain.Mafioso;
 
 import lombok.Getter;
@@ -106,6 +106,42 @@ class ApplicationTests {
 		getMafiaHierarchyJgraphtService().reporting(mafioso3, mafioso);
 
 		getMafiaHierarchyJgraphtService().printGraph();
+
+	}
+
+	@Test
+	public void testMafiaHierarchyIsBoss() throws IOException {
+
+		Mafioso mafioso = new Mafioso();
+		mafioso.setAlias("anescobar");
+		mafioso.setFullName("Antonio Escobar");
+		mafioso.setStatus(0);
+
+		Mafioso mafioso2 = new Mafioso();
+		mafioso2.setAlias("gema");
+		mafioso2.setFullName("Gema Delgado");
+		mafioso2.setStatus(0);
+
+		Mafioso mafioso3 = new Mafioso();
+		mafioso3.setAlias("Andres");
+		mafioso3.setFullName("Andres Escobar");
+		mafioso3.setStatus(0);
+
+		getMafiaHierarchyJgraphtService().cleanGraph();
+
+		getMafiaHierarchyJgraphtService().setLastBossSeach(null);
+		getMafiaHierarchyJgraphtService().setMafiaBossReporters(2);
+
+		getMafiaHierarchyJgraphtService().ingressInOrganizationMafioso(mafioso, new Date().getTime());
+		getMafiaHierarchyJgraphtService().ingressInOrganizationMafioso(mafioso2, new Date().getTime());
+		getMafiaHierarchyJgraphtService().ingressInOrganizationMafioso(mafioso3, new Date().getTime());
+
+		getMafiaHierarchyJgraphtService().reporting(mafioso2, mafioso);
+		getMafiaHierarchyJgraphtService().reporting(mafioso3, mafioso);
+
+		List<Mafioso> bosses = getMafiaHierarchyJgraphtService().getBosses();
+
+		assertTrue(bosses.size() == 1);
 
 	}
 
