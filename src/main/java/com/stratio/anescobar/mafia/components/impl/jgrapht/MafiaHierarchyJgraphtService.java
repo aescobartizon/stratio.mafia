@@ -43,37 +43,52 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 	@Setter
 	private int mafiaBossReporters;
 
-	@Getter
-	@Setter
-	private Long lastBossSeach = null;
-
 	public void cleanGraph() {
 		Graph<Mafioso, MafiaEdge<Mafioso>> graph = new SimpleGraph<>(MafiaEdge.class);
 	}
 
 	public void ingressInOrganizationMafioso(Mafioso mafioso, Long ingressDateTime) {
 
+		checkIngressInOrganizationMafioso(mafioso, ingressDateTime);
+
 		mafioso.setIngressDateTime(ingressDateTime);
 
-		if (!graph.containsVertex(mafioso)) {
+		if (getMafiosoByName(mafioso.getFullName()) == null) {
 			graph.addVertex(mafioso);
+		}
+	}
+
+	private void checkIngressInOrganizationMafioso(Mafioso mafioso, Long ingressDateTime) {
+		if (mafioso == null || mafioso.getFullName() == null || mafioso.getFullName().isEmpty() || ingressDateTime == null) {
+			throw new IllegalArgumentException("Error new mafioso arguments");
 		}
 	}
 
 	public void reporting(Mafioso source, Mafioso target) {
 
-		lastBossSeach = null;
-
-		if (!graph.containsVertex(source)) {
+		if (getMafiosoByName(source.getFullName()) == null) {
 			ingressInOrganizationMafioso(source, new Date().getTime());
 		}
 
-		if (!graph.containsVertex(target)) {
+		if (getMafiosoByName(source.getFullName()) == null) {
 			ingressInOrganizationMafioso(target, new Date().getTime());
 		}
 
 		graph.addEdge(source, target);
 
+	}
+
+	public void reporting(String fullNameSource, String fullNameTarget) {
+
+		if (getMafiosoByName(fullNameSource) == null) {
+			ingressInOrganizationMafioso(getMafiosoByName(fullNameSource), new Date().getTime());
+		}
+
+		if (getMafiosoByName(fullNameTarget) == null) {
+			ingressInOrganizationMafioso(getMafiosoByName(fullNameTarget), new Date().getTime());
+		}
+
+		graph.addEdge(getMafiosoByName(fullNameSource), getMafiosoByName(fullNameTarget));
 	}
 
 	public List<Mafioso> getReportingList(Mafioso mafioso) {
@@ -83,6 +98,23 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 		graph.edgesOf(mafioso).forEach(p -> reporters.add(p.getReporter().deepClone()));
 
 		return reporters;
+	}
+
+	public List<Mafioso> getReportingByName(String mafiosoFullName) {
+
+		List<Mafioso> reporters = new ArrayList<>();
+
+		Mafioso vertex = graph.vertexSet().stream().filter(p -> p.getFullName().equals(mafiosoFullName)).findFirst().orElse(null);
+
+		if (vertex != null) {
+			graph.edgesOf(vertex).forEach(p -> reporters.add(p.getReporter()));
+		}
+
+		return reporters;
+	}
+
+	public Mafioso getMafiosoByName(String mafiosoFullName) {
+		return graph.vertexSet().stream().filter(p -> p.getFullName().equals(mafiosoFullName)).findFirst().orElse(null);
 	}
 
 	public List<Mafioso> getMafiosos() {
@@ -102,9 +134,17 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 
 		if (vertex != null && vertex.getStatus() != status.code()) {
 			if (status.code() == MAFIOSOS_STATUS.FREE.code()) {
-				// TODO recuperarsubordinados
+				recoveryBoss(vertex);
 			} else {
-				// TODO sustituir jefe
+				Mafioso succesor = getBossSuccesor(vertex);
+
+				if (succesor != null) {
+					replaceBoss(vertex, succesor, status);
+				} else {
+					if (graph.edgesOf(vertex).size() > 0) {
+						replaceBoss(vertex, graph.edgesOf(vertex).stream().findFirst().get().getReporter(), status);
+					}
+				}
 			}
 
 		} else if (vertex != null && vertex.getStatus() == status.code()) {
@@ -116,6 +156,44 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 		}
 	}
 
+	private void recoveryBoss(Mafioso vertex) {
+
+		vertex.setStatus(MAFIOSOS_STATUS.FREE.code());
+
+		if (vertex.getSubstitute() != null) {
+			Mafioso substitureVertex = graph.vertexSet().stream().filter(p -> p.getFullName().equals(vertex.getSubstitute().getFullName())).findFirst().get();
+			graph.edgesOf(vertex).forEach(p -> graph.removeEdge(p.getReporter(), substitureVertex));
+			vertex.setSubstitute(null);
+		}
+	}
+
+	private void replaceBoss(Mafioso vertex, Mafioso succesor, MAFIOSOS_STATUS status) {
+
+		vertex.setStatus(status.code());
+
+		Mafioso succesorVertex = graph.vertexSet().stream().filter(p -> p.getFullName().equals(succesor.getFullName())).findFirst().get();
+		vertex.setSubstitute(succesor);
+
+		for (MafiaEdge<Mafioso> edge : graph.edgesOf(vertex)) {
+			if (!edge.getReporter().getFullName().equals(succesorVertex.getFullName())) {
+				graph.addEdge(edge.getReporter(), succesorVertex);
+			}
+		}
+
+		succesorVertex.setReporters(graph.edgesOf(succesorVertex).size());
+	}
+
+	private Mafioso getBossSuccesor(Mafioso vertex) {
+		List<Mafioso> succesors = getActiveBosses().stream().filter(p -> !p.getFullName().equals(vertex.getFullName())).collect(Collectors.toList());
+		if (succesors != null && !succesors.isEmpty()) {
+			succesors.sort((h1, h2) -> h1.getIngressDateTime().compareTo(h2.getIngressDateTime()));
+			return succesors.get(0);
+		} else {
+			return null;
+		}
+
+	}
+
 	private void checkUpdateStatusMafiosoArguments(String fullName, MAFIOSOS_STATUS status) {
 		if (fullName == null || fullName.isEmpty()) {
 			throw new IllegalArgumentException("Arguments Errors Expception");
@@ -124,43 +202,28 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 
 	public List<Mafioso> getBosses() {
 
-		if (lastBossSeach == null) {
-			mafiaBosses.clear();
+		mafiaBosses.clear();
 
-			graph.vertexSet().forEach((Mafioso mafioso) -> {
+		graph.vertexSet().forEach((Mafioso mafioso) -> {
 
-				if (isBoss(mafioso)) {
-					Mafioso result = mafioso.deepClone();
-					result.setReporters(graph.edgesOf(mafioso).size());
-					mafiaBosses.add(result);
-				}
-			});
-		}
-		lastBossSeach = new Date().getTime();
+			if (isBoss(mafioso)) {
+				Mafioso result = mafioso.deepClone();
+				result.setReporters(graph.edgesOf(mafioso).size());
+				mafiaBosses.add(result);
+			}
+		});
+
 		return mafiaBosses;
 	}
 
 	public List<Mafioso> getActiveBosses() {
 
-		if (lastBossSeach == null) {
-			mafiaBosses.clear();
-
-			graph.vertexSet().forEach((Mafioso mafioso) -> {
-
-				if (isBoss(mafioso)) {
-					Mafioso result = mafioso.deepClone();
-					result.setReporters(graph.edgesOf(mafioso).size());
-					mafiaBosses.add(result);
-				}
-			});
-		}
-		lastBossSeach = new Date().getTime();
-		return mafiaBosses.stream().filter(p -> p.getStatus() == MAFIOSOS_STATUS.FREE.code()).collect(Collectors.toList());
+		return getBosses().stream().filter(p -> p.getStatus() == MAFIOSOS_STATUS.FREE.code()).collect(Collectors.toList());
 	}
 
 	private boolean isBoss(Mafioso mafioso) {
 
-		return graph.edgesOf(mafioso).size() >= mafiaBossReporters;
+		return graph.edgesOf(mafioso).stream().filter(p -> p.getBoss().getFullName().equals(mafioso.getFullName())).collect(Collectors.toList()).size() >= mafiaBossReporters;
 
 	}
 
