@@ -33,13 +33,16 @@ El sistema funciona tal especificación siendo el concepto de jefe configurable 
 Si un jefe recupera el estado de libre recupera a todas las personas que tenía antes informandole.
 
 
-La funcionalidad se puede probar por api rest o ejecutando los test unitarios, concretamente el test 
+La funcionalidad se puede probar por api rest o ejecutando los test unitarios, concretamente el test. 
 
 ```python
 @Test
 public void testMafiaHierarchyReplaceBossExist() 
 
 ```
+
+Se ha dado más importancia al diseño a una pequeña implementación de ejemplo pero aún faltaría una gestión general de excepción para normalizar las request, documentación más correcta del swagger etc..
+
 
 # Despliegue
 
