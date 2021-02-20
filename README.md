@@ -13,7 +13,7 @@ mafia.graph.implementation=Jgrapht
 #mafia.graph.implementation=neo4j
 #mafia.graph.implementation=sparkGraphx
 
-```java
+```
 
 En la versión actual la implementación real está realizada sobre Jgrapht las otras dos implementaciones está sin implementar se podría probar como funciona la factoría congiendo en runtime la implementación concreta especificada en la variable mafia.graph.implementation.
 
