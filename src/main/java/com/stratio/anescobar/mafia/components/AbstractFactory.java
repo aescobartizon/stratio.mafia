@@ -14,4 +14,11 @@ public interface AbstractFactory<T> {
 	 * @return the service
 	 */
 	T getService(String implementation);
+
+	/**
+	 * Gets the service.
+	 *
+	 * @return the service
+	 */
+	T getService();
 }

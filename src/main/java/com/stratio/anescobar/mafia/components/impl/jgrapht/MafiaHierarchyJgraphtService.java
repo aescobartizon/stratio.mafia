@@ -41,10 +41,9 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 
 	private List<Mafioso> mafiaBosses = new ArrayList<>();
 
-	@Value("${mafia.boss.reporters:50}")
-
 	@Getter
 	@Setter
+	@Value("${mafia.boss.reporters:50}")
 	private int mafiaBossReporters;
 
 	/**
@@ -115,11 +114,24 @@ public class MafiaHierarchyJgraphtService extends AbstractGenericService impleme
 	public void reporting(String fullNameSource, String fullNameTarget) {
 
 		if (getMafiosoByName(fullNameSource) == null) {
-			ingressInOrganizationMafioso(getMafiosoByName(fullNameSource), new Date().getTime());
+			Mafioso reporter = getMafiosoByName(fullNameSource);
+			if (reporter == null) {
+				reporter = new Mafioso();
+				reporter.setFullName(fullNameSource);
+				reporter.setStatus(MAFIOSOS_STATUS.FREE.code());
+			}
+
+			ingressInOrganizationMafioso(reporter, new Date().getTime());
 		}
 
 		if (getMafiosoByName(fullNameTarget) == null) {
-			ingressInOrganizationMafioso(getMafiosoByName(fullNameTarget), new Date().getTime());
+			Mafioso boss = getMafiosoByName(fullNameTarget);
+			if (boss == null) {
+				boss = new Mafioso();
+				boss.setFullName(fullNameTarget);
+				boss.setStatus(MAFIOSOS_STATUS.FREE.code());
+			}
+			ingressInOrganizationMafioso(boss, new Date().getTime());
 		}
 
 		graph.addEdge(getMafiosoByName(fullNameSource), getMafiosoByName(fullNameTarget));
