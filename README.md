@@ -1,7 +1,7 @@
 # stratio.mafia
 Prueba de desarrollo - Test seguimiento de la Mafia
 
-#Diseño Técnico para escalabilidad y reusabilidad de componentes
+# Diseño Técnico para escalabilidad y reusabilidad de componentes
 La implementación se ha realizado bajo la arquitectura de  microservicios de forma que es sistema está diseñado para un despliegue del componente para dar soporte a una organización. 
 
 El mismo componente utiliza una factoría para implementación específica para mantener la estructura de la organización. En el momento de despliegue se puede sobrecargar la variable de entorno con la siguiente propiedad
@@ -17,7 +17,7 @@ Este diseño es debido a que aunque se puede escalar teniendo diversas instancia
 La implementación concreta de Jgrapht se ha decidido porque es necesario una implementación basada en teoría de grafos, ya que actualmente se puede tener una estructura puramente piramidal, pero con este enfoque estaríamos preparados por si se modificara la estructura de información o si tuvieramos que analizar la importancia de la información dando pesos a los edges.
 
 
-#Funcionalidad
+# Funcionalidad
 
 Actualmente se pueden dispone de un api Rest para insertar en el sistema los informatens origen y destino de forma que se va alimentando el grafo y se dispone de de varios endpoint donde se puede cambiar el estado de un jefe, obtener los jefes activos activos actualmente y otro para obtener los informantes de un determinado jefe.
 
