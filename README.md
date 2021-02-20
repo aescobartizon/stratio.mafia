@@ -7,7 +7,7 @@ La implementación se ha realizado bajo la arquitectura de  microservicios de fo
 El mismo componente utiliza una factoría para implementación específica para mantener la estructura de la organización. En el momento de despliegue se puede sobrecargar la variable de entorno y especificar una implementación determinada según las características de la organización.
 
 ```python
-## public class MafiaHierarchyFatory implements AbstractFactory<MafiaHierarchy>
+public class MafiaHierarchyFatory implements AbstractFactory<MafiaHierarchy>
 
 mafia.graph.implementation=Jgrapht
 #mafia.graph.implementation=neo4j
