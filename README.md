@@ -53,5 +53,8 @@ mvn clean install
 mvn spring-boot:build-image
 ```
 
+# Futuras implementaciones
+
+Una de las futuras mejoras previstas es sustituir el api Rest por un sistema en streaming donde mediante otro proceso que utilice LPN pueda detectar el jefe y el que reporta,así como la criticidad de la información y poder profundizar en el analisis más profundo, así como implementar un sistema de alertas temprana a la policía para detectar golpes o asesinatos antes de que sucedan.
 
 
