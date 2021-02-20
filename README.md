@@ -6,6 +6,8 @@ La implementación se ha realizado bajo la arquitectura de  microservicios de fo
 
 El mismo componente utiliza una factoría para implementación específica para mantener la estructura de la organización. En el momento de despliegue se puede sobrecargar la variable de entorno con la siguiente propiedad
 
+## public class MafiaHierarchyFatory implements AbstractFactory<MafiaHierarchy>
+
 mafia.graph.implementation=Jgrapht
 #mafia.graph.implementation=neo4j
 #mafia.graph.implementation=sparkGraphx
