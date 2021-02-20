@@ -4,13 +4,16 @@ Prueba de desarrollo - Test seguimiento de la Mafia
 # Diseño Técnico para escalabilidad y reusabilidad de componentes
 La implementación se ha realizado bajo la arquitectura de  microservicios de forma que es sistema está diseñado para un despliegue del componente para dar soporte a una organización. 
 
-El mismo componente utiliza una factoría para implementación específica para mantener la estructura de la organización. En el momento de despliegue se puede sobrecargar la variable de entorno con la siguiente propiedad
+El mismo componente utiliza una factoría para implementación específica para mantener la estructura de la organización. En el momento de despliegue se puede sobrecargar la variable de entorno y especificar una implementación determinada según las características de la organización.
 
+```
 ## public class MafiaHierarchyFatory implements AbstractFactory<MafiaHierarchy>
 
 mafia.graph.implementation=Jgrapht
 #mafia.graph.implementation=neo4j
 #mafia.graph.implementation=sparkGraphx
+
+```java
 
 En la versión actual la implementación real está realizada sobre Jgrapht las otras dos implementaciones está sin implementar se podría probar como funciona la factoría congiendo en runtime la implementación concreta especificada en la variable mafia.graph.implementation.
 
