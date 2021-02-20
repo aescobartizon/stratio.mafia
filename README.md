@@ -24,7 +24,8 @@ La implementación concreta de Jgrapht se ha decidido porque es necesario una im
 
 # Funcionalidad
 
-Actualmente se pueden dispone de un api Rest  http://localhost:9082/swagger-ui.html para insertar en el sistema los informantes origen y destino de forma que se va alimentando el grafo y se dispone de de varios endpoint donde se puede cambiar el estado de un jefe, obtener los jefes activos activos actualmente y otro para obtener los informantes de un determinado jefe.
+Actualmente se pueden dispone de un api Rest  http://localhost:9082/swagger-ui.html para insertar en el sistema los informantes origen y destino de forma que se va alimentando el grafo y se dispone de de varios endpoint donde se puede cambiar el estado de un jefe, obtener los jefes activos activos actualmente y otro para obtener los informantes de un
+determinado jefe.
 
 
 El sistema funciona tal especificación siendo el concepto de jefe configurable desde la siguiente propiedad mafia.boss.reporters=2. Actualmente para las pruebas está a 2 informantes pero es configurable. El sistema cuando un Jefe deja de estar libre, posibles estados [ FREE, ENCARCELADO, ASSESINADO ], se elige otro jefe y las personas a su cargo pasan a estar reportando al siguiente jefe, si no hay jefes disponibles se promociona. 
@@ -37,6 +38,16 @@ La funcionalidad se puede probar por api rest o ejecutando los test unitarios, c
 ```python
 @Test
 public void testMafiaHierarchyReplaceBossExist() 
+
+```
+
+# Despliegue
+
+```python
+#.jar
+mvn clean install
+#Docker
+mvn spring-boot:build-image
 ```
 
 
